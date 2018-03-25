@@ -59,7 +59,7 @@ def load_images_for_model(X_batch):
         # crop the gun, in the bottom right.
         img = img[920:1000, 1650:1820]
         img = cv2.resize(img, (85, 40))
-        img = img//255
+
         X_loaded.append(img)
 
     cv2.imwrite('t1.jpg', X_loaded[0])
