@@ -182,8 +182,8 @@ def train():
             accs.append(loss[1])
 
         print(sum(losses)/len(losses), sum(accs)/len(accs))
-
-    model.save('saved_model.h5')
+        # save model at the end of every epoch.
+        model.save('saved_model.h5')
 
 def parse_video(file_name, full_path, original_count, label):
     count = original_count
