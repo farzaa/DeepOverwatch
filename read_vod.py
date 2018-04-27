@@ -1,30 +1,29 @@
 import cv2
 import numpy as np
 import os
+from random import shuffle
+
 
 import keras
 from keras.models import Sequential
 from keras.layers import Input, Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Activation
 from keras.callbacks import TensorBoard
-
-from sklearn.preprocessing import LabelEncoder
-
-from random import shuffle
+from keras.utils import to_categorical
 
 
 PATH_TO_CLIPS = 'clips/'
 PATH_TO_DATA = 'data/'
 
-label_dic = {'soldier': 0, 'genji': 1, 'reaper': 2}
+label_dic = {'soldier': 0, 'genji': 1, 'reaper': 2, 'ana': 3, 'bastion': 4, 'brigitte': 5, 'doomfist': 6, 'dva': 7, 'hanzo':8,
+'junkrat': 9, 'lucio': 10, 'mccree': 11, 'mei': 12, 'mercy': 13, 'moira': 14, 'orisa': 15, 'pharah': 16, 'reinhardt': 17,
+'roadhog': 18, 'sombra': 19, 'symmetra': 20, 'torbjorn': 21, 'tracer': 22, 'widowmaker': 23, 'winston': 24, 'zarya': 25,
+'zenyatta': 26}
 
-from keras.utils import to_categorical
-
-
-def get_train_dataset():
+def get_dataset(data_root_path):
     X = []
     y = []
-    for folder in os.listdir(PATH_TO_DATA):
-        path_to_images = PATH_TO_DATA + folder
+    for folder in os.listdir(data_root_path):
+        path_to_images = data_root_path + folder
         label = folder.split("_")[0]
 
         if not os.path.isdir(path_to_images):
@@ -60,9 +59,8 @@ def load_images_for_model(X_batch):
         img = img[920:1000, 1650:1820]
         img = cv2.resize(img, (85, 40))
 
-        X_loaded.append(img)
-
-    cv2.imwrite('t1.jpg', X_loaded[0])
+        X_loaded.append(np.array(img)/(255))
+    cv2.imwrite('t1.jpg', X_loaded[0] * 255)
     return X_loaded
 
 def get_model():
@@ -83,7 +81,6 @@ def get_model():
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
-
     model.add(Flatten())
 
     model.add(Dense(128))
@@ -91,6 +88,37 @@ def get_model():
     model.add(Dropout(0.5))
 
     model.add(Dense(64))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+
+    model.add(Dense(27))
+    model.add(Activation('softmax'))
+
+    opt = keras.optimizers.Adam(lr=0.0001)
+
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=opt,
+                  metrics=['accuracy'])
+
+    model.summary()
+    return model
+
+def get_model2():
+    model = Sequential()
+
+    model.add(Conv2D(32, (3,3), input_shape=(40, 85, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Conv2D(32, (3,3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(Dropout(0.25))
+
+    model.add(Flatten())
+
+    model.add(Dense(32))
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
 
@@ -110,8 +138,10 @@ def get_model():
 # a batch generator is wayyy better because it loads data in parallel and caches it.
 # but this fun :)
 def train():
-    X, y = get_train_dataset()
+    X, y = get_dataset(PATH_TO_DATA)
 
+    # X_train = X[0:20]
+    # y_train = y[0:20]
     X_train = X[0:int(len(X) * 0.8)]
     y_train = y[0:int(len(X) * 0.8)]
 
@@ -120,12 +150,12 @@ def train():
 
 
     model = get_model()
-    num_epochs = 25
+    num_epochs = 15
     batch_size = 8
 
 
     print("Beginning training!")
-    print("Training set is size %d and Val set is size %d" % (len(X_train), len(X_val)))
+    # print("Training set is size %d and Val set is size %d" % (len(X_train), len(X_val)))
 
     for e in range(num_epochs):
         print("On epoch %d" % e)
@@ -151,33 +181,11 @@ def train():
             losses.append(loss[0])
             accs.append(loss[1])
 
-
         print(sum(losses)/len(losses), sum(accs)/len(accs))
 
+    model.save('saved_model.h5')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def parse_video(file_name, full_path, original_count):
+def parse_video(file_name, full_path, original_count, label):
     count = original_count
 
     video = cv2.VideoCapture(full_path)
@@ -209,8 +217,12 @@ def parse_video(file_name, full_path, original_count):
 
     video.release()
 
+# this methods runs one time at the very beginning.
+# it takes the clips, converts them to images, and saves the images to train/test folders.
 def convert_clips():
     for clip_name in os.listdir(PATH_TO_CLIPS):
+        if ".mp4" not in clip_name:
+            continue
         # the name of the video holds the label, ex soldier_1.mp4, genji_7.mp4, etc.
         label = clip_name.split("_")[0]
 
@@ -220,9 +232,11 @@ def convert_clips():
         if not os.path.isdir("data/" + label + "_test"):
             os.mkdir("data/" + label + "_test")
 
+        # test files get placed in a different folder.
         if "test" in clip_name:
-            parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_test")))
+            parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_test")), label)
         else:
-            parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_train")))
+            parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_train")), label)
 
 train()
+# convert_clips()
