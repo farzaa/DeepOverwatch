@@ -12,7 +12,7 @@ from keras.utils import to_categorical
 
 
 PATH_TO_CLIPS = 'clips/'
-PATH_TO_DATA = 'data/'
+PATH_TO_DATA = '/Volumes/DATA/data_ow/'
 
 label_dic = {'soldier': 0, 'genji': 1, 'reaper': 2, 'ana': 3, 'bastion': 4, 'brigitte': 5, 'doomfist': 6, 'dva': 7, 'hanzo':8,
 'junkrat': 9, 'lucio': 10, 'mccree': 11, 'mei': 12, 'mercy': 13, 'moira': 14, 'orisa': 15, 'pharah': 16, 'reinhardt': 17,
@@ -56,11 +56,11 @@ def load_images_for_model(X_batch):
     for path in X_batch:
         img = cv2.imread(path)
         # crop the gun, in the bottom right.
-        img = img[920:1000, 1650:1820]
+        img = img[900:1060, 1500:1840]
         img = cv2.resize(img, (85, 40))
 
-        X_loaded.append(np.array(img)/(255))
-    cv2.imwrite('t1.jpg', X_loaded[0] * 255)
+        X_loaded.append(np.array(img))
+    cv2.imwrite('t1.jpg', X_loaded[0])
     return X_loaded
 
 def get_model():
