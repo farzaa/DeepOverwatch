@@ -56,10 +56,9 @@ def load_images_for_model(X_batch):
     for path in X_batch:
         img = cv2.imread(path)
         # crop the gun, in the bottom right.
-        img = img[900:1060, 1500:1840]
+        img = img[920:1000, 1650:1820]
         img = cv2.resize(img, (85, 40))
-
-        X_loaded.append(np.array(img))
+        X_loaded.append(np.array(img)/(255))
     cv2.imwrite('t1.jpg', X_loaded[0])
     return X_loaded
 
@@ -83,7 +82,7 @@ def get_model():
 
     model.add(Flatten())
 
-    model.add(Dense(128))
+    model.add(Dense(96))
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
 
