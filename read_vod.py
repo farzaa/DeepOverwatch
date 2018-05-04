@@ -43,7 +43,6 @@ def get_dataset(data_root_path):
     zipped = list(zip(X, y))
     shuffle(zipped)
     X, y = zip(*zipped)
-
     # for q,w in zip(X,y):
     #     print(q, w)
     # print(len(X), len(y))
@@ -59,7 +58,8 @@ def load_images_for_model(X_batch):
         img = img[920:1000, 1650:1820]
         img = cv2.resize(img, (85, 40))
         X_loaded.append(np.array(img)/(255))
-    cv2.imwrite('t1.jpg', X_loaded[0])
+
+    cv2.imwrite('t1.jpg', X_loaded[0] * 255)
     return X_loaded
 
 def get_model():
@@ -69,12 +69,10 @@ def get_model():
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
-
     model.add(Conv2D(32, (3,3)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
-
     model.add(Conv2D(32, (3,3)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -82,10 +80,9 @@ def get_model():
 
     model.add(Flatten())
 
-    model.add(Dense(96))
+    model.add(Dense(128))
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
-
     model.add(Dense(64))
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
