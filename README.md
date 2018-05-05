@@ -16,7 +16,7 @@ Than, to predict do:
 model.predict(INSERT_LOADED_IMAGE_HERE)
 ```
 
-The only preprocssing I do can be found in the ```load_images_for_model``` method. DeepOverwatch only works on screenshots that were taken in a game running at 1920x1080. You *can not* run the game at a different resolution and resize the image to 1920x1080.
+The only preprocessing I do can be found in the ```load_images_for_model``` method. Be sure to do this same preprocessing before trying to ```predict``` on an image. DeepOverwatch only works on screenshots that were taken in a game running at 1920x1080. You *can not* run the game at a different resolution and resize the image to 1920x1080.
 
 
 If you want the dataset and want to train your own neural net you can get it here. Its a fat 10GB file. Once you get it, extract the the mp4 files within the ZIP file into a folder name ```clips``` and place this folder in the root directory of this project. Than, simply uncomment the ```convert_clips()``` line and go! This will take a while. 
