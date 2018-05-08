@@ -3,7 +3,6 @@ import numpy as np
 import os
 from random import shuffle
 
-
 import keras
 from keras.models import Sequential
 from keras.layers import Input, Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Activation
@@ -12,7 +11,7 @@ from keras.utils import to_categorical
 
 
 PATH_TO_CLIPS = 'clips/'
-PATH_TO_DATA = '/Volumes/DATA/data_ow/'
+PATH_TO_DATA = 'data/'
 
 label_dic = {'soldier': 0, 'genji': 1, 'reaper': 2, 'ana': 3, 'bastion': 4, 'brigitte': 5, 'doomfist': 6, 'dva': 7, 'hanzo':8,
 'junkrat': 9, 'lucio': 10, 'mccree': 11, 'mei': 12, 'mercy': 13, 'moira': 14, 'orisa': 15, 'pharah': 16, 'reinhardt': 17,
@@ -48,15 +47,27 @@ def get_dataset(data_root_path):
     # print(len(X), len(y))
     return X, y
 
-def load_images_for_model(X_batch):
+def load_images_for_model(X_batch, resize_to_720P=False):
     # X_batch is just a bunch of file names. We need to load the image to pass it to a net!
     X_loaded = []
 
     for path in X_batch:
         img = cv2.imread(path)
-        # crop the gun, in the bottom right.
-        img = img[920:1000, 1650:1820]
+
+        # pure 1080p resized to 720p.
+        if resize_to_720P:
+            img = cv2.resize(img, (1280, 720), interpolation=cv2.INTER_CUBIC)
+            # crop the gun, in the bottom right.
+            img = img[612:668, 1090:1210]
+
+        # pure 1080p video.
+        else:
+            # crop the gun, in the bottom right.
+            img = img[920:1000, 1650:1820]
+
+        # resize before passing to net. i keep the aspect ratio 17:8
         img = cv2.resize(img, (85, 40))
+        # dividing by 255 leads to faster convergence through normalization.
         X_loaded.append(np.array(img)/(255))
 
     cv2.imwrite('t1.jpg', X_loaded[0] * 255)
@@ -88,37 +99,6 @@ def get_model():
     model.add(Dropout(0.5))
 
     model.add(Dense(27))
-    model.add(Activation('softmax'))
-
-    opt = keras.optimizers.Adam(lr=0.0001)
-
-    model.compile(loss='categorical_crossentropy',
-                  optimizer=opt,
-                  metrics=['accuracy'])
-
-    model.summary()
-    return model
-
-def get_model2():
-    model = Sequential()
-
-    model.add(Conv2D(32, (3,3), input_shape=(40, 85, 3)))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Conv2D(32, (3,3)))
-    model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=(3, 3)))
-    model.add(Dropout(0.25))
-
-    model.add(Flatten())
-
-    model.add(Dense(32))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.5))
-
-    model.add(Dense(3))
     model.add(Activation('softmax'))
 
     opt = keras.optimizers.Adam(lr=0.0001)
@@ -193,7 +173,7 @@ def parse_video(file_name, full_path, original_count, label):
 
     while success:
         count += 1
-        # original video at 30FPS, halve FPS to reduce redundancy in training data.
+        # original video at 30FPS, FPS = (1/3) * FPS to reduce redundancy in training data.
         success, frame = video.read()
         if not success:
             break
@@ -234,5 +214,5 @@ def convert_clips():
         else:
             parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_train")), label)
 
-train()
 # convert_clips()
+train()
