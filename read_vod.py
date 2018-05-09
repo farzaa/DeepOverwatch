@@ -14,7 +14,7 @@ PATH_TO_DATA = 'data/'
 label_dic = {'soldier': 0, 'genji': 1, 'reaper': 2, 'ana': 3, 'bastion': 4, 'brigitte': 5, 'doomfist': 6, 'dva': 7, 'hanzo':8,
 'junkrat': 9, 'lucio': 10, 'mccree': 11, 'mei': 12, 'mercy': 13, 'moira': 14, 'orisa': 15, 'pharah': 16, 'reinhardt': 17,
 'roadhog': 18, 'sombra': 19, 'symmetra': 20, 'torbjorn': 21, 'tracer': 22, 'widowmaker': 23, 'winston': 24, 'zarya': 25,
-'zenyatta': 26}
+'zenyatta': 26, 'babydva': 27}
 
 def get_dataset(data_root_path, get_test_set=False):
     X = []
@@ -128,7 +128,7 @@ def train():
 
 
     model = get_model()
-    num_epochs = 15
+    num_epochs = 10
     batch_size = 8
 
 

@@ -45,17 +45,21 @@ def convert_clips():
             continue
         # the name of the video holds the label, ex soldier_1.mp4, genji_7.mp4, etc.
         label = clip_name.split("_")[0]
+        print(label)
+        # temporary
+        if (label == "babydva") or (label == "dva"):
 
-        if not os.path.isdir("data/" + label + "_train"):
-            os.mkdir("data/" + label + "_train")
+            if not os.path.isdir("data/" + label + "_train"):
+                os.mkdir("data/" + label + "_train")
 
-        if not os.path.isdir("data/" + label + "_test"):
-            os.mkdir("data/" + label + "_test")
+            if not os.path.isdir("data/" + label + "_test"):
+                os.mkdir("data/" + label + "_test")
 
-        # test files get placed in a different folder.
-        if "test" in clip_name:
-            parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_test")), label)
-        else:
-            parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_train")), label)
+            # test files get placed in a different folder.
+            if "test" in clip_name:
+                parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_test")), label)
+            else:
+                parse_video(clip_name, PATH_TO_CLIPS + clip_name, len(os.listdir("data/" + label + "_train")), label)
 
-convert_clips()
+if __name__ == '__main__':
+    convert_clips()
