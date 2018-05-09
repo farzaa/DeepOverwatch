@@ -49,7 +49,7 @@ def get_dataset(data_root_path, get_test_set=False):
     # print(len(X), len(y))
     return X, y
 
-def load_images_for_model(X_batch, resize_to_720P=False):
+def load_images_for_model(X_batch, resize_to_720P=True):
     # X_batch is just a bunch of file names. We need to load the image to pass it to a net!
     X_loaded = []
 
@@ -126,11 +126,9 @@ def train():
     X_val = X[int(len(X) * 0.8):]
     y_val = y[int(len(X) * 0.8):]
 
-
     model = get_model()
     num_epochs = 10
     batch_size = 8
-
 
     print("Beginning training!")
     # print("Training set is size %d and Val set is size %d" % (len(X_train), len(X_val)))
