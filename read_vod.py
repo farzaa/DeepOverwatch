@@ -100,7 +100,7 @@ def get_model():
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
 
-    model.add(Dense(27))
+    model.add(Dense(28))
     model.add(Activation('softmax'))
 
     opt = keras.optimizers.Adam(lr=0.0001)
