@@ -17,7 +17,8 @@ label_dic = {'soldier': 0, 'genji': 1, 'reaper': 2, 'ana': 3, 'bastion': 4, 'bri
 
 
 # load model
-model = load_model('trained_720_model.h5')
+model = load_model('saved_model.h5')
+model.summary()
 
 i = 0
 batch_size = 32

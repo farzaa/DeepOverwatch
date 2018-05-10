@@ -23,6 +23,9 @@ def get_dataset(data_root_path, get_test_set=False):
         path_to_images = data_root_path + folder
         label = folder.split("_")[0]
 
+        if label != "tracer":
+            continue
+
         if not os.path.isdir(path_to_images):
             continue
         # skip when "test" is in folder and we don't want the test set
