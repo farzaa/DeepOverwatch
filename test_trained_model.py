@@ -26,7 +26,7 @@ batch_size = 32
 losses = []
 accs = []
 X, y = get_dataset(PATH_TO_DATA, get_test_set=True)
-
+print(len(X))
 for i in range(0, len(X), batch_size):
     X_batch = np.asarray(load_images_for_model(X[i: i + batch_size], resize_to_720P=True))
     y_batch = np.asarray(y[i: i + batch_size])
